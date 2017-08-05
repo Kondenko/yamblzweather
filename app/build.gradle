@@ -41,6 +41,9 @@ ext {
     verMosby = "3.0.4"
     verLeakCanary = "1.5.1"
     verRxBinding = "2.0.0"
+    verAutoValue = "1.2"
+    verRxRelay = "2.0.0"
+    verAutoParcel = '0.2.5'
 }
 
 dependencies {
@@ -82,6 +85,11 @@ dependencies {
     testCompile "com.squareup.leakcanary:leakcanary-android-no-op:$verLeakCanary"
 
     compile "com.jakewharton.rxbinding2:rxbinding:$verRxBinding"
+    compile "com.jakewharton.rxrelay2:rxrelay:$verRxRelay"
+
+    compile "com.google.auto.value:auto-value:$verAutoValue"
+    annotationProcessor "com.google.auto.value:auto-value:$verAutoValue"
+    annotationProcessor "com.ryanharter.auto.value:auto-value-parcel:$verAutoParcel"
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.0.33-beta'

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import com.kondenko.yamblzweather.Const;
 import com.kondenko.yamblzweather.R;
+import com.kondenko.yamblzweather.infrastructure.SettingsManager;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.longThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 

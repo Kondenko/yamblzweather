@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.kondenko.yamblzweather.R;
-import com.kondenko.yamblzweather.model.entity.Prediction;
+import com.kondenko.yamblzweather.domain.entity.Prediction;
 
 import java.util.List;
 
@@ -29,17 +29,17 @@ class SuggestsAdapter extends RecyclerView.Adapter<SuggestsAdapter.ViewHolder> {
         predictionList = new SortedList<>(Prediction.class, new SortedListAdapterCallback<Prediction>(this) {
             @Override
             public int compare(Prediction o1, Prediction o2) {
-                return o1.getPlace().compareTo(o2.getPlace());
+                return o1.id().compareTo(o2.id());
             }
 
             @Override
             public boolean areContentsTheSame(Prediction oldItem, Prediction newItem) {
-                return oldItem.getPlace().equals(newItem.getPlace());
+                return oldItem.id().equals(newItem.id());
             }
 
             @Override
             public boolean areItemsTheSame(Prediction item1, Prediction item2) {
-                return item1.getId().equals(item2.getId());
+                return item1.id().equals(item2.id());
             }
         });
         predictionList.addAll(items);
@@ -67,8 +67,8 @@ class SuggestsAdapter extends RecyclerView.Adapter<SuggestsAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.prediction = predictionList.get(position);
-        holder.textView.setText(predictionList.get(position).getPlace());
+        holder.Prediction = predictionList.get(position);
+        holder.textView.setText(predictionList.get(position).name());
         final Prediction element = predictionList.get(position);
         holder.itemView.setOnClickListener(v -> onClickSubject.onNext(element));
     }
@@ -81,7 +81,7 @@ class SuggestsAdapter extends RecyclerView.Adapter<SuggestsAdapter.ViewHolder> {
     class ViewHolder extends RecyclerView.ViewHolder {
         final View view;
         final TextView textView;
-        Prediction prediction;
+        Prediction Prediction;
 
         ViewHolder(View view) {
             super(view);

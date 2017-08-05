@@ -34,7 +34,8 @@ public abstract class BaseMvpActivity<M extends Parcelable, P extends BasePresen
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
             data = savedInstanceState.getParcelable(KEY_MODEL);
-            setData(data);
+            if (data != null)
+                setData(data);
         }
     }
 

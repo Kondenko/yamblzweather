@@ -6,14 +6,12 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.kondenko.yamblzweather.R;
-import com.kondenko.yamblzweather.model.entity.CitySuggest;
-import com.kondenko.yamblzweather.model.entity.Prediction;
+import com.kondenko.yamblzweather.domain.entity.Prediction;
 import com.kondenko.yamblzweather.ui.BaseMvpActivity;
 import com.kondenko.yamblzweather.utils.Logger;
 
@@ -26,7 +24,7 @@ import butterknife.ButterKnife;
 import dagger.android.AndroidInjection;
 import io.reactivex.Observable;
 
-public class SuggestsActivity extends BaseMvpActivity<CitySuggest, SuggestsPresenter> implements SuggestsView {
+public class SuggestsActivity extends BaseMvpActivity<SuggestsViewModel, SuggestsPresenter> implements SuggestsView {
     private static final String TAG = SuggestsActivity.class.getSimpleName();
     @BindView(R.id.search_field)
     EditText searchField;
@@ -60,9 +58,9 @@ public class SuggestsActivity extends BaseMvpActivity<CitySuggest, SuggestsPrese
     }
 
     @Override
-    public void setData(CitySuggest data) {
+    public void setData(SuggestsViewModel data) {
         super.setData(data);
-        suggestsAdapter.setData(data.getPredictions());
+        suggestsAdapter.setData(data.predictions());
     }
 
     @Override

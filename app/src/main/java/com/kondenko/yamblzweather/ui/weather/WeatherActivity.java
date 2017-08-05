@@ -15,18 +15,14 @@ import android.widget.Toast;
 
 import com.github.pwittchen.weathericonview.WeatherIconView;
 import com.kondenko.yamblzweather.R;
-import com.kondenko.yamblzweather.model.entity.Rain;
-import com.kondenko.yamblzweather.model.entity.Weather;
-import com.kondenko.yamblzweather.model.entity.WeatherModel;
+import com.kondenko.yamblzweather.domain.entity.Weather;
+import com.kondenko.yamblzweather.domain.entity.WeatherConditions;
 import com.kondenko.yamblzweather.ui.BaseMvpActivity;
 import com.kondenko.yamblzweather.ui.about.AboutActivity;
 import com.kondenko.yamblzweather.ui.citysuggest.SuggestsActivity;
 import com.kondenko.yamblzweather.ui.settings.SettingsActivity;
 import com.kondenko.yamblzweather.utils.Logger;
 import com.kondenko.yamblzweather.utils.WeatherUtils;
-
-import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -35,7 +31,7 @@ import butterknife.ButterKnife;
 import dagger.android.AndroidInjection;
 
 public class WeatherActivity
-        extends BaseMvpActivity<WeatherModel, WeatherPresenter>
+        extends BaseMvpActivity<Weather, WeatherPresenter>
         implements WeatherView {
 
     private static final java.lang.String TAG = "WeatherActivity";
@@ -75,7 +71,7 @@ public class WeatherActivity
     @Override
     protected void onResume() {
         super.onResume();
-        presenter.loadData();
+        presenter.updateData();
     }
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +83,7 @@ public class WeatherActivity
         setToolbar(toolbar, false);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) actionBar.setDisplayShowTitleEnabled(false);
-        refreshLayout.setOnRefreshListener(presenter::loadData);
+        refreshLayout.setOnRefreshListener(presenter::updateData);
         buttonCity.setOnClickListener((v) -> startActivity(new Intent(this, SuggestsActivity.class)));
     }
 
@@ -119,14 +115,12 @@ public class WeatherActivity
     }
 
     @Override
-    public void setData(WeatherModel weather) {
+    public void setData(Weather weather) {
         super.setData(weather);
-        showCity(weather.getName());
-        showTemperature(weather.getMain().getTemp(), weather.getMain().getTempUnitKey());
-        showCondition(weather.getWeather());
-        showWindSpeed(weather.getWind().getSpeed());
-        Rain rain = weather.getRain();
-        showRainLevel(rain != null ? rain.get3h() : 0);
+        showCity(weather.city().name());
+        showTemperature(weather.temperature().celsiusDegrees(), "C°");
+        showCondition(weather.weatherConditions());
+        showWindSpeed(weather.windSpeed());
     }
 
     @Override
@@ -148,12 +142,8 @@ public class WeatherActivity
         textTemperature.setText(temperatureSpannable);
     }
 
-    private void showCondition(List<Weather> condition) {
-        Weather weatherCondition = condition.get(0);
-        weatherIcon.setIconResource(getString(WeatherUtils.getIconStringResource(weatherCondition)));
-        String description = weatherCondition.getDescription();
-        description = description.substring(0, 1).toUpperCase(Locale.getDefault()) + description.substring(1);
-        textCondition.setText(description);
+    private void showCondition(WeatherConditions condition) {
+        weatherIcon.setIconResource(getString(WeatherUtils.getIconStringResource(condition)));
     }
 
     private void showRainLevel(double value) {

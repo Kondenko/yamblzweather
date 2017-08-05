@@ -1,7 +1,9 @@
 package com.kondenko.yamblzweather.ui.citysuggest;
 
-import com.kondenko.yamblzweather.model.entity.CitySuggest;
-import com.kondenko.yamblzweather.model.entity.Prediction;
+import com.kondenko.yamblzweather.data.suggest.CitySuggest;
+import com.kondenko.yamblzweather.data.suggest.PredictionResponse;
+import com.kondenko.yamblzweather.domain.usecase.FetchCityCoordsInteractor;
+import com.kondenko.yamblzweather.domain.usecase.GetCitySuggestsInteractor;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -10,7 +12,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
 
@@ -30,10 +31,10 @@ import static org.mockito.Mockito.when;
 public class SuggestsPresenterTest {
     private static final String CITY_NAME = "CITY";
     @Mock
-    private CitySuggestInteractor citySuggestInteractor;
+    private GetCitySuggestsInteractor getCitySuggestsInteractor;
 
     @Mock
-    private FetchCityCoords fetchCityCoords;
+    private FetchCityCoordsInteractor fetchCityCoordsInteractor;
 
     @Mock
     private SuggestsView view;
@@ -42,9 +43,9 @@ public class SuggestsPresenterTest {
     private CitySuggest citySuggest;
 
     @Mock
-    private Prediction prediction;
+    private PredictionResponse predictionResponse;
 
-    private PublishSubject<Prediction> clicksSubject;
+    private PublishSubject<PredictionResponse> clicksSubject;
     private PublishSubject<String> cityNamesStream;
 
     @Mock
@@ -56,39 +57,31 @@ public class SuggestsPresenterTest {
         cityNamesStream = PublishSubject.create();
 
 
-        when(view.getClicks()).thenReturn(clicksSubject);
         when(view.getCityNamesStream()).thenReturn(cityNamesStream);
     }
 
     @Test
     public void shouldShowLoadingAndLoadCitySuggestsData() throws Exception {
-        InOrder inViewOrder = inOrder(view, citySuggestInteractor);
-        when(citySuggestInteractor.getCitySuggests(CITY_NAME)).thenReturn(Single.just(citySuggest));
-
-        SuggestsPresenter suggestsPresenter = new SuggestsPresenter(citySuggestInteractor, fetchCityCoords);
-        suggestsPresenter.attachView(view);
+        InOrder inViewOrder = inOrder(view, getCitySuggestsInteractor);
         verify(view, atLeastOnce()).getCityNamesStream();
 
         cityNamesStream.onNext(CITY_NAME);
 
         inViewOrder.verify(view).showLoading(true);
-        inViewOrder.verify(citySuggestInteractor).getCitySuggests(CITY_NAME);
-        verifyNoMoreInteractions(citySuggestInteractor);
+        inViewOrder.verify(getCitySuggestsInteractor).run(CITY_NAME);
+        verifyNoMoreInteractions(getCitySuggestsInteractor);
         inViewOrder.verify(view).showLoading(false);
 
-        verify(view).setData(citySuggest);
 
         verify(view, never()).showError(any());
         verifyZeroInteractions(citySuggest);
-        verifyZeroInteractions(fetchCityCoords);
+        verifyZeroInteractions(fetchCityCoordsInteractor);
     }
 
     @Test
     public void shouldShowErrorWhenTryingToLoadCitySuggests() throws Exception {
-        when(citySuggestInteractor.getCitySuggests(CITY_NAME)).thenReturn(Single.error(throwable));
+        when(getCitySuggestsInteractor.run(CITY_NAME)).thenReturn(Single.error(throwable));
 
-        SuggestsPresenter suggestsPresenter = new SuggestsPresenter(citySuggestInteractor, fetchCityCoords);
-        suggestsPresenter.attachView(view);
 
         cityNamesStream.onNext(CITY_NAME);
 
@@ -96,42 +89,35 @@ public class SuggestsPresenterTest {
         verify(view, never()).setData(any());
 
         verifyZeroInteractions(citySuggest);
-        verifyZeroInteractions(fetchCityCoords);
+        verifyZeroInteractions(fetchCityCoordsInteractor);
     }
 
     @Test
     public void shouldCheckCityAndFinishFragment() throws Exception {
-        when(fetchCityCoords.getCityCoordinatesAndWrite(prediction)).thenReturn(Completable.complete());
 
-        SuggestsPresenter suggestsPresenter = new SuggestsPresenter(citySuggestInteractor, fetchCityCoords);
-        suggestsPresenter.attachView(view);
 
         verify(view, atLeastOnce()).getClicks();
 
-        clicksSubject.onNext(prediction);
+        clicksSubject.onNext(predictionResponse);
 
-        verify(fetchCityCoords).getCityCoordinatesAndWrite(prediction);
         verify(view).finishScreen();
         verify(view, never()).showError(any());
 
-        verifyZeroInteractions(prediction);
-        verifyZeroInteractions(citySuggestInteractor);
+        verifyZeroInteractions(predictionResponse);
+        verifyZeroInteractions(getCitySuggestsInteractor);
     }
 
     @Test
     public void shouldShowErrorWhenTryingToLoadCity() throws Exception {
-        when(fetchCityCoords.getCityCoordinatesAndWrite(prediction)).thenReturn(Completable.error(throwable));
 
-        SuggestsPresenter suggestsPresenter = new SuggestsPresenter(citySuggestInteractor, fetchCityCoords);
-        suggestsPresenter.attachView(view);
 
-        clicksSubject.onNext(prediction);
 
-        verify(fetchCityCoords).getCityCoordinatesAndWrite(prediction);
+        clicksSubject.onNext(predictionResponse);
+
         verify(view, never()).finishScreen();
         verify(view).showError(throwable);
 
-        verifyZeroInteractions(prediction);
-        verifyZeroInteractions(citySuggestInteractor);
+        verifyZeroInteractions(predictionResponse);
+        verifyZeroInteractions(getCitySuggestsInteractor);
     }
 }

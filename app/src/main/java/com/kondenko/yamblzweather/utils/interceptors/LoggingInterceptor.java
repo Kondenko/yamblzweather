@@ -16,9 +16,9 @@ public class LoggingInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
         Response response = chain.proceed(request);
-        Logger.i(TAG, request.headers().toString());
+        //Logger.i(TAG, request.headers().toString());
         Logger.i(TAG, request.toString());
-        Logger.i(TAG, response.headers().toString());
+        //Logger.i(TAG, response.headers().toString());
         Logger.i(TAG, response.toString());
         return response;
     }

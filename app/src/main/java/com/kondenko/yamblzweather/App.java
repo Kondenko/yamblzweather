@@ -4,9 +4,10 @@ import android.app.Activity;
 import android.app.Application;
 
 import com.evernote.android.job.JobManager;
-import com.kondenko.yamblzweather.dagger.components.DaggerAppComponent;
-import com.kondenko.yamblzweather.dagger.modules.AppModule;
-import com.kondenko.yamblzweather.dagger.modules.NetModule;
+import com.kondenko.yamblzweather.di.components.DaggerAppComponent;
+import com.kondenko.yamblzweather.di.modules.AppModule;
+import com.kondenko.yamblzweather.domain.guards.JobsScheduler;
+import com.kondenko.yamblzweather.infrastructure.SettingsManager;
 import com.squareup.leakcanary.LeakCanary;
 
 import javax.inject.Inject;
@@ -20,6 +21,10 @@ public class App extends Application implements HasActivityInjector {
 
     @Inject
     DispatchingAndroidInjector<Activity> dispatchingActivityInjector;
+    @Inject
+    JobsScheduler weatherJobsScheduler;
+    @Inject
+    SettingsManager settingsManager;
 
     @Override
     public void onCreate() {
@@ -28,11 +33,11 @@ public class App extends Application implements HasActivityInjector {
         LeakCanary.install(this);
         JobManager.create(this);
         DaggerAppComponent.builder()
-                .application(this)
-                .appModule(new AppModule(this))
-                .netModule(new NetModule())
-                .build()
-                .inject(this);
+                          .application(this)
+                          .appModule(new AppModule(this))
+                          .build()
+                          .inject(this);
+        weatherJobsScheduler.scheduleUpdateJob(settingsManager.getRefreshRateHr());
     }
 
     @Override
