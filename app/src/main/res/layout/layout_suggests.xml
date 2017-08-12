@@ -12,25 +12,75 @@
         android:layout_height="wrap_content"/>
 
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="16dp"
+        android:background="@color/colorPrimaryDark"/>
 
     <EditText
         android:id="@+id/search_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="@string/search_city_hint"
         android:imeOptions="actionSearch"
-        android:inputType="text"/>
+        android:inputType="text"
+        android:padding="16dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="16dp"
+        android:background="@color/colorPrimaryDark"/>
 
     <android.support.v4.widget.ContentLoadingProgressBar
         android:id="@+id/suggests_progress_bar"
-        android:layout_width="128dp"
-        android:visibility="gone"
         style="?android:attr/progressBarStyleLarge"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
         android:layout_gravity="center_horizontal"
-        android:layout_height="128dp"/>
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/suggests_city_error"
+        android:layout_width="match_parent"
+        android:layout_height="256dp"
+        android:visibility="gone"
+        android:orientation="vertical"
+        android:padding="@dimen/text_big_margin"
+        android:background="@color/colorPrimaryDark">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/text_margin"
+            android:src="@drawable/ic_connection_dark"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textSize="@dimen/text_size"
+            android:text="@string/error_loading_cities"
+            android:textAlignment="center"
+            android:textColor="@color/colorTextPrimary"/>
+    </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/suggests_view"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:listitem="@layout/item_city_suggest"
+        tools:visibility="gone"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/cities_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:listitem="@layout/item_city_suggest"
+        tools:visibility="gone"/>
+
+    <View
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:listitem="@layout/item_city_suggest"/>
+        android:background="@color/colorPrimaryDark"/>
 </LinearLayout>

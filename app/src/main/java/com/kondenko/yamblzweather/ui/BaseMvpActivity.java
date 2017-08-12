@@ -8,18 +8,18 @@ public abstract class BaseMvpActivity<M extends Parcelable, P extends BasePresen
         extends BaseActivity implements BaseView<M> {
 
     private static final String KEY_MODEL = "model";
-    protected M data;
+    private M data;
     protected P presenter;
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         presenter.attachView(this);
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onPause() {
+        super.onPause();
         presenter.detachView();
     }
 
@@ -34,7 +34,8 @@ public abstract class BaseMvpActivity<M extends Parcelable, P extends BasePresen
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
             data = savedInstanceState.getParcelable(KEY_MODEL);
-            setData(data);
+            if (data != null)
+                setData(data);
         }
     }
 

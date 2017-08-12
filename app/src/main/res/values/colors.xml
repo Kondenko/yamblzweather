@@ -9,6 +9,9 @@
     <color name="colorTextPrimary">#494949</color>
     <color name="colorTextSecondary">#a4a4a4</color>
 
+    <color name="colorYandexAccent">#ffcc00</color>
+    <color name="colorStatusBar">#14616161</color>
+
     <color name="colorBackground">#ffffff</color>
 
     <color name="colorIcon">#616161</color>

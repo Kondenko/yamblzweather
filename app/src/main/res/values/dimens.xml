@@ -5,10 +5,15 @@
     <dimen name="height_all_toolbar">?actionBarSize</dimen>
 
     <dimen name="height_weather_button_city">32dp</dimen>
-    <dimen name="corners_weather_button_city">90dp</dimen>
+    <dimen name="corners_weather_button_city">24dp</dimen>
     <dimen name="textsize_weather_display_value_primary">56sp</dimen>
     <dimen name="text_margin">8dp</dimen>
+    <dimen name="text_big_margin">16dp</dimen>
     <dimen name="text_size">16sp</dimen>
+    <dimen name="text_medium_size">20sp</dimen>
+    <dimen name="text_large_size">24sp</dimen>
+    <dimen name="text_large_large_size">32sp</dimen>
+    <dimen name="settings_text_size">16sp</dimen>
     <integer name="size_weather_condition_icon">80</integer>
 
 </resources>
