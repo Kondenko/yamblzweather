@@ -1,10 +1,12 @@
 package com.kondenko.yamblzweather.ui.weather;
 
-import com.kondenko.yamblzweather.model.entity.WeatherModel;
+import com.kondenko.yamblzweather.domain.entity.City;
 import com.kondenko.yamblzweather.ui.BaseView;
 
-public interface WeatherView extends BaseView<WeatherModel> {
+import io.reactivex.Observable;
 
-    public void showLatestUpdate(String latestUpdateTime);
+public interface WeatherView extends BaseView<WeatherViewModel> {
+
+    Observable<City> getCitySelections();
 
 }

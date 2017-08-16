@@ -1,12 +1,19 @@
 apply plugin: "com.android.application"
 apply plugin: "me.tatarka.retrolambda"
 
+apply plugin: 'jacoco'
+apply from: "$rootDir/jacoco.gradle"
+
+jacoco {
+    toolVersion = "0.7.9"
+}
 android {
     compileSdkVersion 25
-    buildToolsVersion "26.0.0"
+    buildToolsVersion "26.0.1"
     defaultConfig {
         applicationId "com.kondenko.yamblzweather"
         minSdkVersion 17
+        //noinspection OldTargetApi
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -19,13 +26,18 @@ android {
         }
         debug {
             minifyEnabled false
+            testCoverageEnabled true
         }
     }
     compileOptions {
         targetCompatibility 1.8
         sourceCompatibility 1.8
     }
+    lintOptions {
+        disable 'TypographyFractions','TypographyQuotes', 'InvalidPackage', 'RestrictedApi'
+    }
 }
+
 
 ext {
     verSupportLib = "25.4.0" // Not using 26.0.0-beta2 because of the weird bugs it has
@@ -41,6 +53,10 @@ ext {
     verMosby = "3.0.4"
     verLeakCanary = "1.5.1"
     verRxBinding = "2.0.0"
+    verAutoValue = "1.2"
+    verRxRelay = "2.0.0"
+    verAutoParcel = '0.2.5'
+    verRoom = "1.0.0-alpha5"
 }
 
 dependencies {
@@ -82,6 +98,17 @@ dependencies {
     testCompile "com.squareup.leakcanary:leakcanary-android-no-op:$verLeakCanary"
 
     compile "com.jakewharton.rxbinding2:rxbinding:$verRxBinding"
+    compile "com.jakewharton.rxrelay2:rxrelay:$verRxRelay"
+
+    compile "com.google.auto.value:auto-value:$verAutoValue"
+    annotationProcessor "com.google.auto.value:auto-value:$verAutoValue"
+    annotationProcessor "com.ryanharter.auto.value:auto-value-parcel:$verAutoParcel"
+
+    compile "android.arch.persistence.room:runtime:$verRoom"
+    annotationProcessor "android.arch.persistence.room:compiler:$verRoom"
+    compile "android.arch.persistence.room:rxjava2:$verRoom"
+
+    compile 'com.facebook.stetho:stetho:1.5.0'
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.0.33-beta'
@@ -93,4 +120,3 @@ dependencies {
         exclude group: 'com.google.code.findbugs'
     }
 }
-

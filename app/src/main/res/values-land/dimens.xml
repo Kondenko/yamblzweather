@@ -1,12 +1,5 @@
 <resources>
 
-    <dimen name="margin_all_large">16dp</dimen>
-
-    <dimen name="height_all_toolbar">?actionBarSize</dimen>
-
-    <dimen name="height_weather_button_city">32dp</dimen>
     <dimen name="corners_weather_button_city">90dp</dimen>
-    <dimen name="textsize_weather_display_value_primary">48sp</dimen>
-    <integer name="size_weather_condition_icon">50</integer>
 
 </resources>

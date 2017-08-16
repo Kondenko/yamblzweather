@@ -4,10 +4,10 @@ import android.os.Parcelable;
 
 public interface BaseView<M extends Parcelable> {
 
-    public void setData(M data);
+    void setData(M data);
 
-    public void showLoading(boolean loading);
+    void showLoading(boolean loading);
 
-    public void showError(Throwable error);
+    void showError(Throwable error);
 
 }

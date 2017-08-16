@@ -34,9 +34,9 @@ public class AboutWindowTest {
 
     @Test
     public void weatherActivityTest() {
-        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
 
-        onView(withId(R.id.title)).perform(click());
+        onView(withId(R.id.settings_button)).perform(click());
+        onView(withId(R.id.settings_about)).perform(click());
 
         onView(withId(R.id.about_text)).check(matches(withText(R.string.about_text)));
     }

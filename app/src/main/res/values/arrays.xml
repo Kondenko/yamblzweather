@@ -14,7 +14,7 @@
     </string-array>
 
 
-    <string-array name="pref_refresh_rate_entry_values">
+    <string-array translatable="false" name="pref_refresh_rate_entry_values">
         <item name="entry_rate_2h">2</item>
         <item name="entry_rate_6h">6</item>
         <item name="entry_rate_12h">12</item>

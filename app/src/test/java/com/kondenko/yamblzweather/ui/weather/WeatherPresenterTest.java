@@ -1,144 +1,167 @@
 package com.kondenko.yamblzweather.ui.weather;
 
-import android.content.Context;
 
-import com.kondenko.yamblzweather.Const;
-import com.kondenko.yamblzweather.model.entity.WeatherModel;
-import com.kondenko.yamblzweather.utils.SettingsManager;
-import com.kondenko.yamblzweather.utils.Utils;
+import com.kondenko.yamblzweather.domain.entity.City;
+import com.kondenko.yamblzweather.domain.entity.Forecast;
+import com.kondenko.yamblzweather.domain.entity.Location;
+import com.kondenko.yamblzweather.domain.entity.TempUnit;
+import com.kondenko.yamblzweather.domain.entity.Temperature;
+import com.kondenko.yamblzweather.domain.entity.Weather;
+import com.kondenko.yamblzweather.domain.entity.WeatherConditions;
+import com.kondenko.yamblzweather.domain.usecase.GetCurrentCityInteractor;
+import com.kondenko.yamblzweather.domain.usecase.GetCurrentWeatherInteractor;
+import com.kondenko.yamblzweather.domain.usecase.GetFavoredCitiesInteractor;
+import com.kondenko.yamblzweather.domain.usecase.GetForecastInteractor;
+import com.kondenko.yamblzweather.domain.usecase.GetUnitsInteractor;
+import com.kondenko.yamblzweather.domain.usecase.SetCurrentCityInteractor;
+import com.kondenko.yamblzweather.domain.usecase.UpdateWeatherInteractor;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import io.reactivex.Single;
-import okhttp3.ResponseBody;
-import retrofit2.HttpException;
-import retrofit2.Response;
+import java.util.ArrayList;
 
-import static org.mockito.Mockito.inOrder;
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by Mishkun on 22.07.2017.
+ * Created by Mishkun on 11.08.2017.
  */
 @RunWith(MockitoJUnitRunner.class)
 public class WeatherPresenterTest {
-
-    private static final String DEFAULT = "default";
-    private static final String F = "f";
-    private static final int REFRESH_RATE = 10;
-    private static final long TIMESTAMP = 69;
+    private WeatherPresenter weatherPresenter;
 
     @Mock
-    WeatherView weatherView;
+    private GetCurrentWeatherInteractor currentWeatherInteractor;
     @Mock
-    WeatherInteractor weatherInteractor;
+    private GetForecastInteractor getForecastInteractor;
     @Mock
-    SettingsManager settingsManager;
+    private UpdateWeatherInteractor updateWeatherInteractor;
     @Mock
-    JobsRepository weatherJobScheduler;
+    private SetCurrentCityInteractor setCurrentCityInteractor;
     @Mock
-    Context context;
+    private GetCurrentCityInteractor getCurrentCityInteractor;
     @Mock
-    WeatherModel weatherModel;
+    private GetFavoredCitiesInteractor getFavoredCitiesInteractor;
     @Mock
-    com.kondenko.yamblzweather.model.entity.Main main;
+    private GetUnitsInteractor getUnitsInteractor;
+    @Mock
+    private WeatherView view;
+
+
+    private Weather weather;
+    private City city;
+    private Forecast forecast;
+    private WeatherViewModel weatherViewModel;
+    private ArrayList<City> cityList;
 
     @Before
-    public void setUp() {
-        when(settingsManager.getCity()).thenReturn(Const.ID_MOSCOW);
-        when(settingsManager.getUnitKey()).thenReturn(DEFAULT);
-        when(settingsManager.getUnitValue()).thenReturn(F);
-        when(settingsManager.getRefreshRateHr()).thenReturn(REFRESH_RATE);
-        when(weatherModel.getTimestamp()).thenReturn(TIMESTAMP);
+    public void setUp() throws Exception {
+        weatherPresenter = new WeatherPresenter(currentWeatherInteractor, getForecastInteractor, updateWeatherInteractor, setCurrentCityInteractor,
+                                                getCurrentCityInteractor, getFavoredCitiesInteractor, getUnitsInteractor);
+        setupWeather();
+        city = City.create(Location.builder().longitude(0).latitude(0).build(), "name", "id");
+        forecast = Forecast.create(new ArrayList<Weather>() {{
+            add(weather);
+            add(weather);
+        }});
+        cityList = new ArrayList<City>() {{
+            add(city);
+            add(city);
+        }};
+        weatherViewModel = WeatherViewModel.create(weather, forecast, city, cityList,
+                                                   TempUnit.IMPERIAL);
+    }
 
-        when(weatherModel.getMain()).thenReturn(main);
+    private void setupWeather() {
+        Temperature temperature = Temperature.valueOfKelvin(0);
+        weather = Weather.builder()
+                         .weatherConditions(WeatherConditions.CLEAR)
+                         .dayTemperature(temperature)
+                         .nightTemperature(temperature)
+                         .temperature(temperature)
+                         .pressure(0)
+                         .humidity(0)
+                         .timestamp(0)
+                         .windSpeed(0)
+                         .build();
     }
 
     @Test
-    public void shouldLoadData() throws Exception {
-        when(weatherInteractor.getWeather(DEFAULT)).thenReturn(Single.just(weatherModel));
-        WeatherPresenter presenter = new WeatherPresenter(weatherInteractor, weatherJobScheduler, settingsManager);
-        InOrder loadingInOrder = inOrder(weatherView, weatherInteractor);
-        presenter.attachView(weatherView);
-        presenter.loadData();
-        verify(settingsManager).getRefreshRateHr();
-        verify(weatherJobScheduler).scheduleUpdateJob(REFRESH_RATE);
-        verifyNoMoreInteractions(weatherJobScheduler);
+    public void shouldSubscribeViewOnWeather() throws Exception {
+        when(getCurrentCityInteractor.run()).thenReturn(Observable.just(city, city));
+        when(currentWeatherInteractor.run()).thenReturn(Observable.just(weather, weather));
+        when(getFavoredCitiesInteractor.run()).thenReturn(Single.just(cityList));
+        when(getForecastInteractor.run()).thenReturn(Maybe.just(forecast));
+        when(getUnitsInteractor.run()).thenReturn(Single.just(TempUnit.IMPERIAL));
+        when(updateWeatherInteractor.run(any())).thenReturn(Completable.complete());
+        when(view.getCitySelections()).thenReturn(Observable.never());
 
-        loadingInOrder.verify(weatherView).showLoading(true);
+        weatherPresenter.attachView(view);
 
-        loadingInOrder.verify(weatherInteractor).getWeather(DEFAULT);
-        verifyNoMoreInteractions(weatherInteractor);
-
-        loadingInOrder.verify(weatherView).showLoading(false);
-
-        verify(settingsManager).getUnitKey();
-
-        verify(weatherView).setData(weatherModel);
-        verify(weatherView).showLatestUpdate(Utils.millisTo24time(TIMESTAMP));
-        verify(settingsManager).getUnitValue();
-        verify(main).setTempUnitKey(F);
-
-        verifyNoMoreInteractions(settingsManager);
-        verifyNoMoreInteractions(weatherView);
+        verify(view, times(2)).setData(weatherViewModel);
+        verify(view, times(1)).getCitySelections();
+        verifyNoMoreInteractions(view);
     }
 
     @Test
-    public void shouldShowError() {
-        HttpException nothing = new HttpException(Response.error(404, ResponseBody.create(null, "NOTHING")));
-        when(weatherInteractor.getWeather(DEFAULT)).thenReturn(Single.error(nothing));
-        WeatherPresenter weatherPresenter = new WeatherPresenter(weatherInteractor, weatherJobScheduler, settingsManager);
-        InOrder loadingInOrder = inOrder(weatherView, weatherInteractor);
+    public void shouldSubscribeToCityUpdatesAndOnlyOnce() throws Exception {
+        when(getCurrentCityInteractor.run()).thenReturn(Observable.just(city, city));
+        when(setCurrentCityInteractor.run(any())).thenReturn(Completable.complete());
+        when(currentWeatherInteractor.run()).thenReturn(Observable.just(weather, weather));
+        when(getFavoredCitiesInteractor.run()).thenReturn(Single.just(new ArrayList<>()));
+        when(getForecastInteractor.run()).thenReturn(Maybe.just(forecast));
+        when(getUnitsInteractor.run()).thenReturn(Single.just(TempUnit.IMPERIAL));
+        when(updateWeatherInteractor.run(any())).thenReturn(Completable.complete());
+        when(view.getCitySelections()).thenReturn(Observable.just(city, city));
 
-        weatherPresenter.attachView(weatherView);
-        weatherPresenter.loadData();
-        verify(settingsManager).getRefreshRateHr();
-        verify(weatherJobScheduler).scheduleUpdateJob(REFRESH_RATE);
-        verifyNoMoreInteractions(weatherJobScheduler);
+        weatherPresenter.attachView(view);
 
-        loadingInOrder.verify(weatherView).showLoading(true);
-
-        loadingInOrder.verify(weatherInteractor).getWeather(DEFAULT);
-        verifyNoMoreInteractions(weatherInteractor);
-
-        loadingInOrder.verify(weatherView).showLoading(false);
-
-        verify(settingsManager).getUnitKey();
-        verifyNoMoreInteractions(settingsManager);
-
-        verify(weatherView).showError(nothing);
-        verifyNoMoreInteractions(weatherView);
-    }
-
-
-    @Test
-    public void shouldDetachViewAndNotShowData() {
-        when(weatherInteractor.getWeather(DEFAULT)).thenReturn(Single.just(weatherModel));
-        WeatherPresenter succcessPresenter = new WeatherPresenter(weatherInteractor, weatherJobScheduler, settingsManager);
-        succcessPresenter.attachView(weatherView);
-        succcessPresenter.detachView();
-        succcessPresenter.loadData();
-
-        verifyZeroInteractions(weatherView);
+        verify(setCurrentCityInteractor, times(2)).run(city);
     }
 
     @Test
-    public void shouldDetachViewAndNotShowError() {
-        HttpException nothing = new HttpException(Response.error(404, ResponseBody.create(null, "NOTHING")));
-        when(weatherInteractor.getWeather(DEFAULT)).thenReturn(Single.error(nothing));
-        WeatherPresenter errorPresenter = new WeatherPresenter(weatherInteractor, weatherJobScheduler, settingsManager);
-        errorPresenter.attachView(weatherView);
-        errorPresenter.detachView();
-        errorPresenter.loadData();
+    public void shouldUpdateData() throws Exception {
+        when(getCurrentCityInteractor.run()).thenReturn(Observable.just(city, city));
+        when(view.getCitySelections()).thenReturn(Observable.never());
+        when(currentWeatherInteractor.run()).thenReturn(Observable.never());
+        when(getFavoredCitiesInteractor.run()).thenReturn(Single.just(new ArrayList<>()));
+        when(getForecastInteractor.run()).thenReturn(Maybe.empty());
+        when(getUnitsInteractor.run()).thenReturn(Single.just(TempUnit.IMPERIAL));
+        when(updateWeatherInteractor.run(any())).thenReturn(Completable.complete());
 
-        verifyZeroInteractions(weatherView);
+        weatherPresenter.attachView(view);
+        weatherPresenter.updateData();
+
+        verify(updateWeatherInteractor, atLeastOnce()).run(city);
     }
+
+    @Test
+    public void shouldShowError() throws Exception {
+        when(getCurrentCityInteractor.run()).thenReturn(Observable.just(city, city));
+        when(view.getCitySelections()).thenReturn(Observable.never());
+        when(currentWeatherInteractor.run()).thenReturn(Observable.never());
+        when(getFavoredCitiesInteractor.run()).thenReturn(Single.just(new ArrayList<>()));
+        when(getForecastInteractor.run()).thenReturn(Maybe.empty());
+        when(getUnitsInteractor.run()).thenReturn(Single.just(TempUnit.IMPERIAL));
+        when(updateWeatherInteractor.run(any())).thenReturn(Completable.error(new Throwable()));
+
+        weatherPresenter.attachView(view);
+        weatherPresenter.updateData();
+
+        verify(view).showError(any());
+    }
+
 }

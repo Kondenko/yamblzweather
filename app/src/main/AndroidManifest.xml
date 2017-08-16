@@ -37,6 +37,11 @@
             android:parentActivityName=".ui.weather.WeatherActivity"
             android:theme="@style/AppTheme">
         </activity>
+        <activity
+            android:name=".ui.onboarding.OnboardingActivity"
+            android:parentActivityName=".ui.weather.WeatherActivity"
+            android:theme="@style/AppTheme">
+        </activity>
     </application>
 
 </manifest>
