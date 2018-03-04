@@ -37,6 +37,16 @@
             android:parentActivityName=".ui.weather.WeatherActivity"
             android:theme="@style/AppTheme">
         </activity>
+        <activity
+            android:name=".ui.onboarding.OnboardingActivity"
+            android:parentActivityName=".ui.weather.WeatherActivity"
+            android:theme="@style/AppTheme">
+        </activity>
+
+        <provider
+            android:authorities="com.kondenko.yamblzweather.infrastructure"
+            android:exported="true"
+            android:name=".infrastructure.WeatherProvider"/>
     </application>
 
 </manifest>

@@ -63,7 +63,7 @@ public class UnitsSettingsTest {
 
     @Test
     public void fahrenheitTest() {
-        onView(withId(R.id.action_settings)).perform(click());
+        onView(withId(R.id.settings_button)).perform(click());
 
         onView(childAtPosition(withId(android.R.id.list), 0)).perform(click());
 
@@ -76,7 +76,7 @@ public class UnitsSettingsTest {
 
     @Test
     public void kelvinTest() {
-        onView(withId(R.id.action_settings)).perform(click());
+        onView(withId(R.id.settings_button)).perform(click());
 
         onView(childAtPosition(withId(android.R.id.list), 0)).perform(click());
 
@@ -89,7 +89,7 @@ public class UnitsSettingsTest {
 
     @Test
     public void celsiusTest() {
-        onView(withId(R.id.action_settings)).perform(click());
+        onView(withId(R.id.settings_button)).perform(click());
 
         onView(childAtPosition(withId(android.R.id.list), 0)).perform(click());
 

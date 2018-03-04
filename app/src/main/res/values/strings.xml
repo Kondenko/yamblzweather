@@ -1,29 +1,19 @@
 <resources>
-    <string name="app_name">Yamblz Weather</string>
-
-    <string name="title_weather">Weather</string>
+    <string name="app_name">Weathere Minimale</string>
     <string name="title_settings">Settings</string>
     <string name="title_about">About</string>
+    <string name="title_suggests">Select city</string>
 
-    <string name="about_text">Mobilization 2017 \n  Vladimir Kondenko</string>
+    <string name="about_text">Mobilization 2017 \n  Vladimir Kondenko, \n  Mikhail Levchenko</string>
 
-    <!--Weather-->
-
-    <string name="weather_temperature_header">Temperature</string>
-    <string name="weather_rain_level_header">Rain level</string>
-    <string name="weather_wind_speed_header">Wind</string>
-
-    <string name="weather_temperature_value" translatable="false">%1$s°%2$s</string>
-    <string name="weather_rain_level_value">%.0f mm</string>
-    <string name="weather_unknown_rain_level_value" translatable="false">--</string>
-    <string name="weather_wind_speed_value">%.0f m/s</string>
+    <!--WeatherConditions-->
 
     <string name="weather_latest_update_time_value">Updated %s</string>
 
     <!--Errors-->
 
-    <string name="error_generic">Error</string>
-    <string name="error_loading_weather">Error updating weather</string>
+    <string name="error_loading_weather">Error updating weatherCondition</string>
+    <string name="error_loading_cities">Error loading cities.\nPlease, check Internet connection</string>
 
     <!--Settings-->
 
@@ -51,14 +41,61 @@
     <string name="pref_value_refresh_rate_6_hours">6 hours</string>
     <string name="pref_value_refresh_rate_12_hours">12 hours</string>
     <string name="pref_value_refresh_rate_24_hours">24 hours</string>
-    <string name="pref_default_value_refresh_rate_2_hours">2</string>
-    <string name="pref_key_latitude">KEY_LATITUDE</string>
-    <string name="pref_key_longitude">PREF_LONGITUDE</string>
-    <string name="default_city">Москва</string>
-    <string name="pref_key_city">PREF_CITY</string>
+    <string name="pref_default_value_refresh_rate_2_hours" translatable="false">2</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="error_loading_cities">Error loading cities...</string>
+    <!-- Edit cities -->
+    <string name="no_city_text">Edit city…</string>
+    <string name="delete_button">delete</string>
+    <string name="onboard_choose_city_button_text">Choose your city</string>
+    <string name="onboard_summary_text">Welcome to Yamblz Weather!\nPlease, choose your city so we can be friends ;)</string>
+    <string name="key_onboarding_completion" translatable="false">KEY_ONBOARDING_COMPLETION</string>
+    <string name="search_city_hint">Find new city…</string>
+    <string name="close_content_description">Delete city</string>
+    <string name="n_a" translatable="false">N/A</string>
+    <string name="no_server_connection">No server connection</string>
+    <string name="please_try_again">Please try again</string>
+
+    <!-- Weather titles -->
+    <string name="cold_rain">cold rain</string>
+    <string name="just_rain">rainy</string>
+    <string name="hot_rain">warm rain</string>
+
+    <string name="hot_cloudy">steamy</string>
+    <string name="just_cloudy">cloudy</string>
+    <string name="cold_cloudy">cold and cloudy</string>
+
+    <string name="hot_thunder">warm thunder</string>
+    <string name="just_thunder">thunderstorm</string>
+    <string name="cold_thunder">cold and thunder</string>
+
+    <string name="hot_fog">steamy fog</string>
+    <string name="just_fog">low fog</string>
+    <string name="cold_fog">cold fog</string>
+
+    <string name="hot_clear">hell hot</string>
+    <string name="just_clear">warm day</string>
+    <string name="cold_clear">cold and sun</string>
+
+    <string name="hot_drizzle">wet breeze</string>
+    <string name="just_drizzle">nasty drizzle</string>
+    <string name="cold_drizzle">cold slush</string>
+
+    <string name="cold_snow">frosty snow</string>
+    <string name="just_snow">wet snow</string>
+    <string name="hot_snow">hot snow???</string>
+
+    <string name="hot_clear_stuffy">stuffy</string>
+    <string name="just_clear_stuffy">wet</string>
+    <string name="cold_clear_stuffy">cold and wet</string>
+
+    <string name="default_weather">the right day</string>
+
+    <string name="title_text">Today is %s</string>
+
+    <string name="subtitle_tonight_text">Tonight is %s</string>
+    <string name="subtitle_tonight_also_text">Tonight is also\n%s</string>
+
+    <string name="subtitle_tomorrow_text">Tomorrow is %s</string>
+    <string name="subtitle_tomorrow_also_text">Tomorrow is also\n%s</string>
 
 </resources>

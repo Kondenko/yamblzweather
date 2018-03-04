@@ -3,6 +3,7 @@
               android:layout_height="match_parent"
               xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
+              android:fitsSystemWindows="true"
               tools:context=".ui.about.AboutActivity"
     >
 
@@ -15,9 +16,16 @@
         android:id="@+id/about_text"
         style="@style/TextAppearance.AppCompat.Headline"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_big_margin"
         android:alpha="0.54"
         android:gravity="center"
         android:text="@string/about_text" />
-
+    <ImageView
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:layout_margin="@dimen/text_big_margin"
+        android:src="@drawable/yandex"
+        android:layout_gravity="center_horizontal"
+        />
 </LinearLayout>

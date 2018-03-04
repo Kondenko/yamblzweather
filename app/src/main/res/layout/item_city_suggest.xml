@@ -7,10 +7,11 @@
     >
     <TextView
         android:id="@+id/suggest_text"
-        android:layout_margin="@dimen/text_margin"
+        android:layout_margin="@dimen/text_big_margin"
         android:layout_width="wrap_content"
         android:textColor="@color/colorTextPrimary"
         android:textSize="@dimen/text_size"
-        tools:text="Android"
+
+        tools:text="Moscow"
         android:layout_height="wrap_content"/>
 </FrameLayout>

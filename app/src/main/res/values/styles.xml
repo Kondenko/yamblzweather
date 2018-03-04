@@ -3,18 +3,18 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccentPrimary</item>
+        <item name="colorAccent">@color/colorYandexAccent</item>
+        <item name="colorControlNormal">#c5c5c5</item>
     </style>
 
     <style name="App.Weather.Button.City" parent="Base.Widget.AppCompat.Button.Colored">
-        <item name="android:background">@drawable/backgound_weather_button_city</item>
+        <item name="android:background">@drawable/background_weather_button_city</item>
     </style>
+
 
     <style name="App.Weather.Text.DisplayValue.Primary" parent="AppTheme">
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Display4</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:gravity">center</item>
-        <item name="android:textSize">@dimen/textsize_weather_display_value_primary</item>
+
     </style>
 
     <style name="App.Weather.Text.DisplayValue.Secondary" parent="AppTheme">

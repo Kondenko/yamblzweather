@@ -1,7 +1,14 @@
 package com.kondenko.yamblzweather.ui.citysuggest;
 
-import com.kondenko.yamblzweather.model.entity.CitySuggest;
-import com.kondenko.yamblzweather.model.entity.Prediction;
+import com.kondenko.yamblzweather.domain.entity.City;
+import com.kondenko.yamblzweather.domain.entity.Location;
+import com.kondenko.yamblzweather.domain.entity.Prediction;
+import com.kondenko.yamblzweather.domain.usecase.DeleteCityInteractor;
+import com.kondenko.yamblzweather.domain.usecase.FetchCityCoordinatesInteractor;
+import com.kondenko.yamblzweather.domain.usecase.GetCitySuggestsInteractor;
+import com.kondenko.yamblzweather.domain.usecase.GetCurrentCityInteractor;
+import com.kondenko.yamblzweather.domain.usecase.GetFavoredCitiesInteractor;
+import com.kondenko.yamblzweather.domain.usecase.SetCurrentCityInteractor;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -10,128 +17,176 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.reactivex.Completable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by Mishkun on 29.07.2017.
+ * Created by Mishkun on 12.08.2017.
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SuggestsPresenterTest {
-    private static final String CITY_NAME = "CITY";
-    @Mock
-    private CitySuggestInteractor citySuggestInteractor;
 
+    private static final String NAME = "NAME";
+    private static final String PLACE_ID = "ID";
+    private static final java.lang.String EMPTY = "";
+    private SuggestsPresenter suggestsPresenter;
     @Mock
-    private FetchCityCoords fetchCityCoords;
-
+    private GetCitySuggestsInteractor getCitySuggestsInteractor;
+    @Mock
+    private FetchCityCoordinatesInteractor fetchCityCoordinatesInteractor;
+    @Mock
+    private GetFavoredCitiesInteractor getFavoredCitiesInteractor;
+    @Mock
+    private SetCurrentCityInteractor setCurrentCityInteractor;
+    @Mock
+    private DeleteCityInteractor deleteCityInteractor;
+    @Mock
+    private GetCurrentCityInteractor getCurrentCityInteractor;
     @Mock
     private SuggestsView view;
-
-    @Mock
-    private CitySuggest citySuggest;
-
-    @Mock
+    private City city;
     private Prediction prediction;
-
-    private PublishSubject<Prediction> clicksSubject;
-    private PublishSubject<String> cityNamesStream;
-
-    @Mock
-    private Throwable throwable;
+    private List<Prediction> predictions;
+    private List<City> cities;
 
     @Before
     public void setUp() throws Exception {
-        clicksSubject = PublishSubject.create();
-        cityNamesStream = PublishSubject.create();
-
-
-        when(view.getClicks()).thenReturn(clicksSubject);
-        when(view.getCityNamesStream()).thenReturn(cityNamesStream);
+        suggestsPresenter = new SuggestsPresenter(getCitySuggestsInteractor, fetchCityCoordinatesInteractor, getFavoredCitiesInteractor,
+                                                  setCurrentCityInteractor,
+                                                  deleteCityInteractor, getCurrentCityInteractor);
+        city = City.create(Location.builder().longitude(0).latitude(0).build(), NAME, PLACE_ID);
+        prediction = Prediction.create(NAME, PLACE_ID);
+        predictions = new ArrayList<Prediction>() {{
+            add(prediction);
+            add(prediction);
+        }};
+        cities = new ArrayList<City>() {{
+            add(city);
+            add(city);
+        }};
     }
 
     @Test
-    public void shouldShowLoadingAndLoadCitySuggestsData() throws Exception {
-        InOrder inViewOrder = inOrder(view, citySuggestInteractor);
-        when(citySuggestInteractor.getCitySuggests(CITY_NAME)).thenReturn(Single.just(citySuggest));
+    public void shouldSubscribeToView() throws Exception {
+        when(view.getCitiesDeletionsClicks()).thenReturn(Observable.never());
+        when(view.getCitiesClicks()).thenReturn(Observable.never());
+        when(view.getSuggestsClicks()).thenReturn(Observable.never());
+        when(view.getCityNamesStream()).thenReturn(Observable.just(NAME));
+        when(getCitySuggestsInteractor.run(anyString())).thenReturn(Single.just(predictions));
+        InOrder loadingInOrder = inOrder(view, getCitySuggestsInteractor);
 
-        SuggestsPresenter suggestsPresenter = new SuggestsPresenter(citySuggestInteractor, fetchCityCoords);
         suggestsPresenter.attachView(view);
-        verify(view, atLeastOnce()).getCityNamesStream();
 
-        cityNamesStream.onNext(CITY_NAME);
+        loadingInOrder.verify(view).showLoading(true);
+        loadingInOrder.verify(getCitySuggestsInteractor).run(NAME);
+        loadingInOrder.verify(view).showLoading(false);
 
-        inViewOrder.verify(view).showLoading(true);
-        inViewOrder.verify(citySuggestInteractor).getCitySuggests(CITY_NAME);
-        verifyNoMoreInteractions(citySuggestInteractor);
-        inViewOrder.verify(view).showLoading(false);
-
-        verify(view).setData(citySuggest);
-
-        verify(view, never()).showError(any());
-        verifyZeroInteractions(citySuggest);
-        verifyZeroInteractions(fetchCityCoords);
+        verify(view).setData(SuggestsViewModel.createWithPredictions(predictions));
     }
 
     @Test
-    public void shouldShowErrorWhenTryingToLoadCitySuggests() throws Exception {
-        when(citySuggestInteractor.getCitySuggests(CITY_NAME)).thenReturn(Single.error(throwable));
+    public void shouldReSubOnError() throws Exception {
+        when(view.getCitiesDeletionsClicks()).thenReturn(Observable.never());
+        when(view.getCitiesClicks()).thenReturn(Observable.never());
+        when(view.getSuggestsClicks()).thenReturn(Observable.never());
+        String ERROR = "ERROR";
+        PublishSubject<String> subject = PublishSubject.create();
+        when(view.getCityNamesStream()).thenReturn(subject);
+        when(getCitySuggestsInteractor.run(eq(NAME))).thenReturn(Single.just(predictions));
+        when(getCitySuggestsInteractor.run(eq(ERROR))).thenReturn(Single.error(new Throwable()));
 
-        SuggestsPresenter suggestsPresenter = new SuggestsPresenter(citySuggestInteractor, fetchCityCoords);
         suggestsPresenter.attachView(view);
+        subject.onNext(ERROR);
+        subject.onNext(NAME);
+        subject.onNext(NAME);
 
-        cityNamesStream.onNext(CITY_NAME);
-
-        verify(view).showError(throwable);
-        verify(view, never()).setData(any());
-
-        verifyZeroInteractions(citySuggest);
-        verifyZeroInteractions(fetchCityCoords);
+        verify(view).setData(SuggestsViewModel.createWithPredictions(predictions));
+        verify(view).showError(any());
     }
 
     @Test
-    public void shouldCheckCityAndFinishFragment() throws Exception {
-        when(fetchCityCoords.getCityCoordinatesAndWrite(prediction)).thenReturn(Completable.complete());
+    public void shouldSubscribeOnEmptyStrings() throws Exception {
+        when(view.getCitiesDeletionsClicks()).thenReturn(Observable.never());
+        when(view.getCitiesClicks()).thenReturn(Observable.never());
+        when(view.getSuggestsClicks()).thenReturn(Observable.never());
+        when(view.getCityNamesStream()).thenReturn(Observable.just(EMPTY));
+        when(getFavoredCitiesInteractor.run()).thenReturn(Single.just(cities));
+        when(getCurrentCityInteractor.run()).thenReturn(Observable.just(city));
 
-        SuggestsPresenter suggestsPresenter = new SuggestsPresenter(citySuggestInteractor, fetchCityCoords);
         suggestsPresenter.attachView(view);
 
-        verify(view, atLeastOnce()).getClicks();
+        verify(view).setData(SuggestsViewModel.createWithCities(cities, city));
+    }
 
-        clicksSubject.onNext(prediction);
+    @Test
+    public void shouldSubscribeCitiesClicks() throws Exception {
+        when(view.getCitiesDeletionsClicks()).thenReturn(Observable.never());
+        when(view.getCityNamesStream()).thenReturn(Observable.never());
+        when(view.getSuggestsClicks()).thenReturn(Observable.never());
+        when(view.getCitiesClicks()).thenReturn(Observable.just(city));
+        when(setCurrentCityInteractor.run(city)).thenReturn(Completable.complete());
 
-        verify(fetchCityCoords).getCityCoordinatesAndWrite(prediction);
+        suggestsPresenter.attachView(view);
+
         verify(view).finishScreen();
-        verify(view, never()).showError(any());
-
-        verifyZeroInteractions(prediction);
-        verifyZeroInteractions(citySuggestInteractor);
     }
 
     @Test
-    public void shouldShowErrorWhenTryingToLoadCity() throws Exception {
-        when(fetchCityCoords.getCityCoordinatesAndWrite(prediction)).thenReturn(Completable.error(throwable));
+    public void shouldSubscribeDeleteCitiesClicks() throws Exception {
+        when(view.getCityNamesStream()).thenReturn(Observable.never());
+        when(view.getSuggestsClicks()).thenReturn(Observable.never());
+        when(view.getCitiesClicks()).thenReturn(Observable.never());
+        when(view.getCitiesDeletionsClicks()).thenReturn(Observable.just(city));
+        when(deleteCityInteractor.run(city)).thenReturn(Completable.complete());
+        when(getFavoredCitiesInteractor.run()).thenReturn(Single.just(cities));
+        when(getCurrentCityInteractor.run()).thenReturn(Observable.just(city));
 
-        SuggestsPresenter suggestsPresenter = new SuggestsPresenter(citySuggestInteractor, fetchCityCoords);
         suggestsPresenter.attachView(view);
 
-        clicksSubject.onNext(prediction);
+        verify(view).setData(SuggestsViewModel.createWithCities(cities, city));
+    }
 
-        verify(fetchCityCoords).getCityCoordinatesAndWrite(prediction);
-        verify(view, never()).finishScreen();
-        verify(view).showError(throwable);
+    @Test
+    public void shouldSubscribeSuggestsClicks() throws Exception {
+        when(view.getCityNamesStream()).thenReturn(Observable.never());
+        when(view.getCitiesClicks()).thenReturn(Observable.never());
+        when(view.getCitiesDeletionsClicks()).thenReturn(Observable.never());
+        when(view.getSuggestsClicks()).thenReturn(Observable.just(prediction));
+        when(fetchCityCoordinatesInteractor.run(prediction)).thenReturn(Completable.complete());
 
-        verifyZeroInteractions(prediction);
-        verifyZeroInteractions(citySuggestInteractor);
+        suggestsPresenter.attachView(view);
+
+        verify(view).finishScreen();
+    }
+
+    @Test
+    public void shouldResubOnSuggestsClicks() throws Exception {
+        when(view.getCityNamesStream()).thenReturn(Observable.never());
+        when(view.getCitiesClicks()).thenReturn(Observable.never());
+        when(view.getCitiesDeletionsClicks()).thenReturn(Observable.never());
+        Prediction ERROR = Prediction.create("ERROR", "ERROR");
+        PublishSubject<Prediction> subject = PublishSubject.create();
+        when(view.getSuggestsClicks()).thenReturn(subject);
+        when(fetchCityCoordinatesInteractor.run(ERROR)).thenReturn(Completable.error(new Throwable()));
+        when(fetchCityCoordinatesInteractor.run(prediction)).thenReturn(Completable.complete());
+
+        suggestsPresenter.attachView(view);
+        subject.onNext(ERROR);
+        subject.onNext(prediction);
+
+        verify(view).showError(any());
+        verify(view).finishScreen();
     }
 }
